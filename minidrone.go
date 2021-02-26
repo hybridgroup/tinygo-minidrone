@@ -19,6 +19,7 @@ type Minidrone struct {
 	notificationService        *bluetooth.DeviceService
 	flightStatusCharacteristic *bluetooth.DeviceCharacteristic
 
+	buf       []byte
 	stepsfa0a uint16
 	stepsfa0b uint16
 	pcmdMutex sync.Mutex
@@ -126,6 +127,7 @@ func NewMinidrone(dev *bluetooth.Device) *Minidrone {
 		},
 		pcmddata: make([]byte, 19),
 		shutdown: make(chan bool),
+		buf:      make([]byte, 255),
 	}
 
 	return n
@@ -386,7 +388,7 @@ func (m *Minidrone) generatePcmd() {
 	m.pcmddata[8] = byte(m.Pcmd.Pitch)
 	m.pcmddata[9] = byte(m.Pcmd.Yaw)
 	m.pcmddata[10] = byte(m.Pcmd.Gaz)
-	binary.LittleEndian.PutUint32(buf[11:], math.Float32bits(m.Pcmd.Psi))
+	binary.LittleEndian.PutUint32(m.buf[11:], math.Float32bits(m.Pcmd.Psi))
 	m.pcmddata[15] = 0x00
 	m.pcmddata[16] = 0x00
 	m.pcmddata[17] = 0x00
