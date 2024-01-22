@@ -144,8 +144,10 @@ func (m *Minidrone) Start() (err error) {
 
 	m.commandService = &srvcs[0]
 	m.notificationService = &srvcs[1]
-	println("found drone command service", m.commandService.UUID().String())
-	println("found drone notify service", m.notificationService.UUID().String())
+	if debug {
+		println("found drone command service", m.commandService.UUID().String())
+		println("found drone notify service", m.notificationService.UUID().String())
+	}
 
 	chars, err := m.commandService.DiscoverCharacteristics([]bluetooth.UUID{
 		commandCharacteristicUUID,
@@ -155,6 +157,9 @@ func (m *Minidrone) Start() (err error) {
 		return errors.New("could not find drone command characteristics")
 	}
 
+	if debug {
+		println("found drone command characteristics", chars[0].UUID().String(), chars[1].UUID().String())
+	}
 	m.commandCharacteristic = &chars[0]
 	m.pcmdCharacteristic = &chars[1]
 
@@ -165,14 +170,22 @@ func (m *Minidrone) Start() (err error) {
 		return errors.New("could not find drone notify characteristics")
 	}
 
+	if debug {
+		println("found drone notify characteristics", chars[0].UUID().String())
+	}
 	m.flightStatusCharacteristic = &chars[0]
 
 	err = m.Init()
 	if err != nil {
-		println(err)
+		if debug {
+			println("init error", err.Error())
+		}
 		return err
 	}
 
+	if debug {
+		println("drone init complete")
+	}
 	m.FlatTrim()
 	m.StartPcmd()
 	m.FlatTrim()
@@ -191,15 +204,22 @@ func (m *Minidrone) Halt() (err error) {
 
 // Init initializes the BLE insterfaces used by the Minidrone
 func (m *Minidrone) Init() (err error) {
+	if debug {
+		println("init")
+	}
 	err = m.GenerateAllStates()
 	if err != nil {
+		println(err.Error())
 		return
 	}
 
+	if debug {
+		println("enabling pcmd notifications")
+	}
+
 	// if you do not enable these notifications, then you cannot send commands to the drone.
-	m.flightStatusCharacteristic.EnableNotifications(func(buf []byte) {
-		//println("notification")
-		//m.processFlightStatus(buf)
+	err = m.flightStatusCharacteristic.EnableNotifications(func(buf []byte) {
+		m.processFlightStatus(buf)
 	})
 
 	// TODO: subscribe to battery notifications
@@ -405,33 +425,49 @@ func (m *Minidrone) processFlightStatus(data []byte) {
 
 	switch data[4] {
 	case flatTrimChanged:
-		//println("flatTrimChanged")
+		if debug {
+			println("flatTrimChanged")
+		}
 
 	case flyingStateChanged:
 		switch data[6] {
 		case flyingStateLanded:
 			if m.Flying {
 				m.Flying = false
-				//println("flyingStateLanded")
+				if debug {
+					println("flyingStateLanded")
+				}
 			}
 		case flyingStateTakeoff:
-			println("flyingStateTakeoff")
+			if debug {
+				println("flyingStateTakeoff")
+			}
 		case flyingStateHovering:
 			if !m.Flying {
 				m.Flying = true
-				//println("flyingStateHovering")
+				if debug {
+					println("flyingStateHovering")
+				}
 			}
 		case flyingStateFlying:
 			if !m.Flying {
 				m.Flying = true
-				//println("flyingStateFlying")
+				if debug {
+					println("flyingStateFlying")
+				}
 			}
 		case flyingStateLanding:
-			//println("flyingStateLanding")
+			if debug {
+				println("flyingStateLanding")
+			}
 		case flyingStateEmergency:
-			//println("flyingStateEmergency")
+			if debug {
+				println("flyingStateEmergency")
+			}
 		case flyingStateRolling:
-			//println("flyingStateRolling")
+			if debug {
+				println("flyingStateRolling")
+			}
 		}
 	}
 }
