@@ -2,8 +2,6 @@ module github.com/hybridgroup/tinygo-minidrone
 
 go 1.20
 
-replace tinygo.org/x/bluetooth => /home/ron/Development/tinygo/bluetooth
-
 require (
 	tinygo.org/x/bluetooth v0.8.1-0.20240122175515-17114fd460ad
 	tinygo.org/x/drivers v0.26.1-0.20240117074700-3c5e17423a16
