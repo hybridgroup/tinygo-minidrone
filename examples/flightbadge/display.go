@@ -24,6 +24,17 @@ var (
 	font = &proggy.TinySZ8pt7b
 )
 
+var logo = `
+  ___ _ _      _   _      
+ | __| (_)__ _| |_| |_    
+ | _|| | / _\ | ' \  _|   
+ |_|_|_|_\__, |_||_\__|   
+ | _ ) __|___/| |__ _ ___ 
+ | _ \/ _\ / _\ / _\ / -_)
+ |___/\__,_\__,_\__, \___|
+                |___/     
+`
+
 func setupDisplay() {
 	machine.SPI1.Configure(machine.SPIConfig{
 		SCK:       machine.SPI1_SCK_PIN,
@@ -50,7 +61,7 @@ func setupDisplay() {
 
 func showSplash() {
 	for _, line := range strings.Split(strings.TrimSuffix(logo, "\n"), "\n") {
-		terminal.Write([]byte(line))
+		terminal.Write([]byte("\n" + line))
 	}
 }
 

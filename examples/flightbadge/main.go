@@ -30,17 +30,6 @@ var (
 	shifted        bool
 )
 
-var logo = `
-  ___ _ _      _   _      
- | __| (_)__ _| |_| |_    
- | _|| | / _\ | ' \  _|   
- |_|_|_|_\__, |_||_\__|   
- | _ ) __|___/| |__ _ ___ 
- | _ \/ _\ / _\ / _\ / -_)
- |___/\__,_\__,_\__, \___|
-                |___/     
-`
-
 func main() {
 	setupDisplay()
 	time.Sleep(3 * time.Second)
@@ -65,8 +54,12 @@ func main() {
 
 	defer device.Disconnect()
 
+	terminalOutput("staring drone...")
+
 	drone = minidrone.NewMinidrone(&device)
 	must("drone start", drone.Start())
+
+	terminalOutput("ready")
 
 	go readControls()
 	controlDrone()
