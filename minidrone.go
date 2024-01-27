@@ -134,11 +134,17 @@ func NewMinidrone(dev *bluetooth.Device) *Minidrone {
 }
 
 func (m *Minidrone) Start() (err error) {
+	if debug {
+		println("drone: Start")
+	}
 	srvcs, err := m.device.DiscoverServices([]bluetooth.UUID{
 		droneCommandServiceUUID,
 		droneNotificationServiceUUID,
 	})
-	if err != nil || len(srvcs) == 0 {
+	switch {
+	case err != nil:
+		return err
+	case len(srvcs) == 0:
 		return errors.New("could not find drone services")
 	}
 
@@ -153,7 +159,10 @@ func (m *Minidrone) Start() (err error) {
 		commandCharacteristicUUID,
 		pcmdCharacteristicUUID,
 	})
-	if err != nil || len(chars) == 0 {
+	switch {
+	case err != nil:
+		return err
+	case len(chars) == 0:
 		return errors.New("could not find drone command characteristics")
 	}
 
@@ -166,7 +175,10 @@ func (m *Minidrone) Start() (err error) {
 	chars, err = m.notificationService.DiscoverCharacteristics([]bluetooth.UUID{
 		flightStatusCharacteristicUUID,
 	})
-	if err != nil || len(chars) == 0 {
+	switch {
+	case err != nil:
+		return err
+	case len(chars) == 0:
 		return errors.New("could not find drone notify characteristics")
 	}
 
@@ -225,6 +237,10 @@ func (m *Minidrone) Init() (err error) {
 	// TODO: subscribe to battery notifications
 
 	return
+}
+
+func (m *Minidrone) Disconnect() {
+	m.device.Disconnect()
 }
 
 // GenerateAllStates sets up all the default states aka settings on the drone
@@ -375,8 +391,8 @@ func (m *Minidrone) CounterClockwise(val int) error {
 	return nil
 }
 
-// Stop tells the drone to stop moving in any direction and simply hover in place
-func (m *Minidrone) Stop() error {
+// Hover tells the drone to stop moving in any direction and simply hover in place
+func (m *Minidrone) Hover() error {
 	m.pcmdMutex.Lock()
 	defer m.pcmdMutex.Unlock()
 
