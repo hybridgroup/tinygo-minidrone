@@ -9,7 +9,7 @@ import (
 )
 
 // replace this with the MAC address of the Parrot Minidrone you want to connect to.
-const deviceAddress = "E0:14:DC:85:3D:D1"
+var DeviceAddress string
 
 var (
 	// buttons
@@ -71,7 +71,7 @@ func main() {
 
 func scanHandler(a *bluetooth.Adapter, d bluetooth.ScanResult) {
 	println("device:", d.Address.String(), d.RSSI, d.LocalName())
-	if d.Address.String() == deviceAddress {
+	if d.Address.String() == DeviceAddress {
 		a.StopScan()
 		ch <- d
 	}
