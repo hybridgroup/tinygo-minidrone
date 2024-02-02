@@ -3,7 +3,7 @@ module github.com/hybridgroup/tinygo-minidrone
 go 1.20
 
 require (
-	tinygo.org/x/bluetooth v0.8.1-0.20240122175515-17114fd460ad
+	tinygo.org/x/bluetooth v0.8.1-0.20240202050151-9a53d2a327d2
 	tinygo.org/x/drivers v0.26.1-0.20240117074700-3c5e17423a16
 	tinygo.org/x/tinydraw v0.0.0-20200416172542-c30d6d84353c
 	tinygo.org/x/tinyfont v0.4.0
