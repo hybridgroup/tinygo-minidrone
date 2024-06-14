@@ -1,7 +1,12 @@
-// takeoff is a tinygo example that connects to a Parrot Mambo drone and
+// takeoff is a tinygo example that connects to a Parrot minidrone and
 // causes it to takeoff and land.
 //
-// You can run this example with the following command:
+// You can run this example either on your computer or on a microcontroller with Bluetooth support.
+//
+// On your computer:
+// go run ./examples/takeoff 4C:D2:6C:17:82:6E
+//
+// On a microcontroller with Bluetooth support:
 // tinygo flash -target=nano-rp2040 -ldflags="-X main.DeviceAddress=4C:D2:6C:17:82:6E" ./examples/takeoff
 package main
 
@@ -18,12 +23,11 @@ var (
 	ch      = make(chan bluetooth.ScanResult, 1)
 
 	drone *minidrone.Minidrone
-
-	DeviceAddress string
 )
 
 func main() {
-	time.Sleep(5 * time.Second)
+	wait()
+
 	println("enabling...")
 
 	must("enable BLE interface", adapter.Enable())
@@ -65,11 +69,13 @@ func main() {
 	}
 
 	drone.Halt()
+
+	done()
 }
 
 func scanHandler(a *bluetooth.Adapter, d bluetooth.ScanResult) {
 	println("device:", d.Address.String(), d.RSSI, d.LocalName())
-	if d.Address.String() == DeviceAddress {
+	if d.Address.String() == connectAddress() {
 		a.StopScan()
 		ch <- d
 	}
@@ -81,12 +87,5 @@ func must(action string, err error) {
 			println("failed to " + action + ": " + err.Error())
 			time.Sleep(time.Second)
 		}
-	}
-}
-
-func failMessage(msg string) {
-	for {
-		println(msg)
-		time.Sleep(time.Second)
 	}
 }
