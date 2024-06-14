@@ -27,6 +27,8 @@ type Minidrone struct {
 	Pcmd      Pcmd
 	pcmddata  []byte
 	shutdown  chan bool
+
+	pilotingStateHandler func(state, substate int)
 }
 
 var (
@@ -46,17 +48,17 @@ var (
 
 const (
 	// piloting states
-	flatTrimChanged    = 0
-	flyingStateChanged = 1
+	PilotingStateFlatTrimChanged    = 0
+	PilotingStateFlyingStateChanged = 1
 
 	// flying states
-	flyingStateLanded    = 0
-	flyingStateTakeoff   = 1
-	flyingStateHovering  = 2
-	flyingStateFlying    = 3
-	flyingStateLanding   = 4
-	flyingStateEmergency = 5
-	flyingStateRolling   = 6
+	FlyingStateLanded    = 0
+	FlyingStateTakeoff   = 1
+	FlyingStateHovering  = 2
+	FlyingStateFlying    = 3
+	FlyingStateLanding   = 4
+	FlyingStateEmergency = 5
+	FlyingStateRolling   = 6
 
 	// Battery event
 	Battery = "battery"
@@ -131,6 +133,10 @@ func NewMinidrone(dev *bluetooth.Device) *Minidrone {
 	}
 
 	return n
+}
+
+func (m *Minidrone) PilotingStateChange(handler func(state, substate int)) {
+	m.pilotingStateHandler = handler
 }
 
 func (m *Minidrone) Start() (err error) {
@@ -408,6 +414,27 @@ func (m *Minidrone) Hover() error {
 	return nil
 }
 
+func FlyingState(state int) string {
+	switch state {
+	case FlyingStateLanded:
+		return Landed
+	case FlyingStateTakeoff:
+		return Takeoff
+	case FlyingStateHovering:
+		return Hovering
+	case FlyingStateFlying:
+		return Flying
+	case FlyingStateLanding:
+		return Landing
+	case FlyingStateEmergency:
+		return Emergency
+	case FlyingStateRolling:
+		return Rolling
+	}
+
+	return "unknown"
+}
+
 func (m *Minidrone) generatePcmd() {
 	m.pcmdMutex.Lock()
 	defer m.pcmdMutex.Unlock()
@@ -440,50 +467,65 @@ func (m *Minidrone) processFlightStatus(data []byte) {
 	}
 
 	switch data[4] {
-	case flatTrimChanged:
+	case PilotingStateFlatTrimChanged:
 		if debug {
 			println("flatTrimChanged")
 		}
 
-	case flyingStateChanged:
+		if m.pilotingStateHandler != nil {
+			m.pilotingStateHandler(int(data[4]), 0)
+		}
+
+	case PilotingStateFlyingStateChanged:
 		switch data[6] {
-		case flyingStateLanded:
+		case FlyingStateLanded:
 			if m.Flying {
 				m.Flying = false
 				if debug {
 					println("flyingStateLanded")
 				}
 			}
-		case flyingStateTakeoff:
+
+		case FlyingStateTakeoff:
 			if debug {
 				println("flyingStateTakeoff")
 			}
-		case flyingStateHovering:
+
+		case FlyingStateHovering:
 			if !m.Flying {
 				m.Flying = true
 				if debug {
 					println("flyingStateHovering")
 				}
 			}
-		case flyingStateFlying:
+
+		case FlyingStateFlying:
 			if !m.Flying {
 				m.Flying = true
 				if debug {
 					println("flyingStateFlying")
 				}
 			}
-		case flyingStateLanding:
+
+		case FlyingStateLanding:
 			if debug {
 				println("flyingStateLanding")
 			}
-		case flyingStateEmergency:
+
+		case FlyingStateEmergency:
 			if debug {
 				println("flyingStateEmergency")
 			}
-		case flyingStateRolling:
+
+		case FlyingStateRolling:
 			if debug {
 				println("flyingStateRolling")
 			}
+
+		}
+
+		if m.pilotingStateHandler != nil {
+			m.pilotingStateHandler(int(data[4]), int(data[6]))
 		}
 	}
 }
