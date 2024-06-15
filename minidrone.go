@@ -414,6 +414,39 @@ func (m *Minidrone) Hover() error {
 	return nil
 }
 
+// FrontFlip tells the drone to perform a front flip
+func (m *Minidrone) FrontFlip() error {
+	_, err := m.commandCharacteristic.WriteWithoutResponse(m.generateAnimation(0))
+
+	return err
+}
+
+// BackFlip tells the drone to perform a backflip
+func (m *Minidrone) BackFlip() error {
+	_, err := m.commandCharacteristic.WriteWithoutResponse(m.generateAnimation(1))
+
+	return err
+}
+
+// RightFlip tells the drone to perform a flip to the right
+func (m *Minidrone) RightFlip() error {
+	_, err := m.commandCharacteristic.WriteWithoutResponse(m.generateAnimation(2))
+
+	return err
+}
+
+// LeftFlip tells the drone to perform a flip to the left
+func (m *Minidrone) LeftFlip() error {
+	_, err := m.commandCharacteristic.WriteWithoutResponse(m.generateAnimation(3))
+
+	return err
+}
+
+func (m *Minidrone) generateAnimation(anim int) []byte {
+	m.stepsfa0b++
+	return []byte{0x02, byte(m.stepsfa0b) & 0xff, 0x02, 0x04, 0x00, 0x00, byte(anim), 0x00, 0x00, 0x00}
+}
+
 func FlyingState(state int) string {
 	switch state {
 	case FlyingStateLanded:
@@ -528,6 +561,20 @@ func (m *Minidrone) processFlightStatus(data []byte) {
 			m.pilotingStateHandler(int(data[4]), int(data[6]))
 		}
 	}
+}
+
+// ValidatePitch helps validate pitch values such as those created by
+// a joystick to values between 0-100 that are required as
+// params to Parrot Minidrone PCMDs
+func ValidatePitch(data float64, offset float64) int {
+	value := math.Abs(data) / offset
+	if value >= 0.1 {
+		if value <= 1.0 {
+			return int((float64(int(value*100)) / 100) * 100)
+		}
+		return 100
+	}
+	return 0
 }
 
 func validatePitch(val int) int {
