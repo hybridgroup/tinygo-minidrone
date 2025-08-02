@@ -6,7 +6,7 @@ The Parrot Minidrones are very inexpensive drones that are controlled using Blue
 
 This package allows you to control a minidrone using the TinyGo `bluetooth` package, so it will work both on computers as well as on bare metal microcontrollers with Bluetooth support.
 
-# Supported drones
+## Supported drones
 
 Models that are known to work with this package include:
 
@@ -28,4 +28,8 @@ Models that will require additional work for compatibility:
 - Parrot Swing
 
 See the examples folder. The "takeoff" examples should work on all platforms.
+
+## MCP Server
+
+[Check out the MCP Server](./cmd/mcp-minidrone)
 
