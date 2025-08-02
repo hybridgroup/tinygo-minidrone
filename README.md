@@ -1,5 +1,7 @@
 # TinyGo Bluetooth Minidrone
 
+![Minidrone](./images/minidrone.jpg)
+
 The Parrot Minidrones are very inexpensive drones that are controlled using Bluetooth LE aka Bluetooth 4.0.
 
 This package allows you to control a minidrone using the TinyGo `bluetooth` package, so it will work both on computers as well as on bare metal microcontrollers with Bluetooth support.
