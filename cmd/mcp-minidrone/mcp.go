@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"sync"
+	"time"
 
 	"github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
@@ -12,6 +14,8 @@ import (
 
 var s *server.MCPServer
 var httpSrv *server.StreamableHTTPServer
+
+var mu sync.Mutex
 
 var (
 	errDroneNotAvailable = errors.New("Minidrone not available")
@@ -38,6 +42,7 @@ func startMCP(port string) {
 	addToolFrontFlip()
 	addToolBackFlip()
 
+	addToolIsFlying()
 	addResourceFlying()
 
 	httpServer := server.NewStreamableHTTPServer(s)
@@ -61,6 +66,9 @@ func takeoffToolHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.
 		return mcpError(name, errDroneNotAvailable), nil
 	}
 
+	mu.Lock()
+	defer mu.Unlock()
+
 	err := drone.TakeOff()
 	if err != nil {
 		return mcpError(name, err), nil
@@ -82,6 +90,9 @@ func landToolHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.Cal
 	if drone == nil {
 		return mcpError(name, errDroneNotAvailable), nil
 	}
+
+	mu.Lock()
+	defer mu.Unlock()
 
 	err := drone.Land()
 	if err != nil {
@@ -105,6 +116,9 @@ func hoverToolHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.Ca
 		return mcpError(name, errDroneNotAvailable), nil
 	}
 
+	mu.Lock()
+	defer mu.Unlock()
+
 	err := drone.Hover()
 	if err != nil {
 		return mcpError(name, err), nil
@@ -118,6 +132,10 @@ func addToolUp() {
 		mcp.WithDescription("Causes the minidrone to move up"),
 		mcp.WithNumber("speed",
 			mcp.Description("speed from 0-100"),
+			mcp.Required(),
+		),
+		mcp.WithNumber("duration",
+			mcp.Description("for how long to move (should default to 500 milliseconds)"),
 			mcp.Required(),
 		),
 	)
@@ -136,10 +154,22 @@ func upToolHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallT
 		return mcpError(name, err), nil
 	}
 
+	duration, err := request.RequireInt("duration")
+	if err != nil {
+		return mcpError(name, err), nil
+	}
+
+	mu.Lock()
+	defer mu.Unlock()
+
 	err = drone.Up(speed)
 	if err != nil {
 		return mcpError(name, err), nil
 	}
+
+	time.AfterFunc(time.Duration(duration)*time.Millisecond, func() {
+		drone.Hover()
+	})
 
 	return mcpSuccess(name, fmt.Sprintf("minidrone moving up at speed %d", speed)), nil
 }
@@ -149,6 +179,10 @@ func addToolDown() {
 		mcp.WithDescription("Causes the minidrone to move down"),
 		mcp.WithNumber("speed",
 			mcp.Description("speed from 0-100"),
+			mcp.Required(),
+		),
+		mcp.WithNumber("duration",
+			mcp.Description("for how long to move (should default to 500 milliseconds)"),
 			mcp.Required(),
 		),
 	)
@@ -167,10 +201,22 @@ func downToolHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.Cal
 		return mcpError(name, err), nil
 	}
 
+	duration, err := request.RequireInt("duration")
+	if err != nil {
+		return mcpError(name, err), nil
+	}
+
+	mu.Lock()
+	defer mu.Unlock()
+
 	err = drone.Down(speed)
 	if err != nil {
 		return mcpError(name, err), nil
 	}
+
+	time.AfterFunc(time.Duration(duration)*time.Millisecond, func() {
+		drone.Hover()
+	})
 
 	return mcpSuccess(name, fmt.Sprintf("minidrone moving down at speed %d", speed)), nil
 }
@@ -180,6 +226,10 @@ func addToolForward() {
 		mcp.WithDescription("Causes the minidrone to move forward"),
 		mcp.WithNumber("speed",
 			mcp.Description("speed from 0-100"),
+			mcp.Required(),
+		),
+		mcp.WithNumber("duration",
+			mcp.Description("for how long to move (should default to 500 milliseconds)"),
 			mcp.Required(),
 		),
 	)
@@ -198,10 +248,22 @@ func forwardToolHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.
 		return mcpError(name, err), nil
 	}
 
+	duration, err := request.RequireInt("duration")
+	if err != nil {
+		return mcpError(name, err), nil
+	}
+
+	mu.Lock()
+	defer mu.Unlock()
+
 	err = drone.Forward(speed)
 	if err != nil {
 		return mcpError(name, err), nil
 	}
+
+	time.AfterFunc(time.Duration(duration)*time.Millisecond, func() {
+		drone.Hover()
+	})
 
 	return mcpSuccess(name, fmt.Sprintf("minidrone moving forward at speed %d", speed)), nil
 }
@@ -211,6 +273,10 @@ func addToolBackward() {
 		mcp.WithDescription("Causes the minidrone to move backward"),
 		mcp.WithNumber("speed",
 			mcp.Description("speed from 0-100"),
+			mcp.Required(),
+		),
+		mcp.WithNumber("duration",
+			mcp.Description("for how long to move (should default to 500 milliseconds)"),
 			mcp.Required(),
 		),
 	)
@@ -229,10 +295,22 @@ func backwardToolHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp
 		return mcpError(name, err), nil
 	}
 
+	duration, err := request.RequireInt("duration")
+	if err != nil {
+		return mcpError(name, err), nil
+	}
+
+	mu.Lock()
+	defer mu.Unlock()
+
 	err = drone.Backward(speed)
 	if err != nil {
 		return mcpError(name, err), nil
 	}
+
+	time.AfterFunc(time.Duration(duration)*time.Millisecond, func() {
+		drone.Hover()
+	})
 
 	return mcpSuccess(name, fmt.Sprintf("minidrone moving backward at speed %d", speed)), nil
 }
@@ -242,6 +320,10 @@ func addToolRight() {
 		mcp.WithDescription("Causes the minidrone to move right"),
 		mcp.WithNumber("speed",
 			mcp.Description("speed from 0-100"),
+			mcp.Required(),
+		),
+		mcp.WithNumber("duration",
+			mcp.Description("for how long to move (should default to 500 milliseconds)"),
 			mcp.Required(),
 		),
 	)
@@ -260,10 +342,22 @@ func rightToolHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.Ca
 		return mcpError(name, err), nil
 	}
 
+	duration, err := request.RequireInt("duration")
+	if err != nil {
+		return mcpError(name, err), nil
+	}
+
+	mu.Lock()
+	defer mu.Unlock()
+
 	err = drone.Right(speed)
 	if err != nil {
 		return mcpError(name, err), nil
 	}
+
+	time.AfterFunc(time.Duration(duration)*time.Millisecond, func() {
+		drone.Hover()
+	})
 
 	return mcpSuccess(name, fmt.Sprintf("minidrone moving right at speed %d", speed)), nil
 }
@@ -273,6 +367,10 @@ func addToolLeft() {
 		mcp.WithDescription("Causes the minidrone to move left"),
 		mcp.WithNumber("speed",
 			mcp.Description("speed from 0-100"),
+			mcp.Required(),
+		),
+		mcp.WithNumber("duration",
+			mcp.Description("for how long to move (should default to 500 milliseconds)"),
 			mcp.Required(),
 		),
 	)
@@ -291,10 +389,22 @@ func leftToolHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.Cal
 		return mcpError(name, err), nil
 	}
 
+	duration, err := request.RequireInt("duration")
+	if err != nil {
+		return mcpError(name, err), nil
+	}
+
+	mu.Lock()
+	defer mu.Unlock()
+
 	err = drone.Left(speed)
 	if err != nil {
 		return mcpError(name, err), nil
 	}
+
+	time.AfterFunc(time.Duration(duration)*time.Millisecond, func() {
+		drone.Hover()
+	})
 
 	return mcpSuccess(name, fmt.Sprintf("minidrone moving left at speed %d", speed)), nil
 }
@@ -304,6 +414,10 @@ func addToolClockwise() {
 		mcp.WithDescription("Causes the minidrone to rotate in a clockwise direction"),
 		mcp.WithNumber("speed",
 			mcp.Description("speed from 0-100"),
+			mcp.Required(),
+		),
+		mcp.WithNumber("duration",
+			mcp.Description("for how long to move (should default to 500 milliseconds)"),
 			mcp.Required(),
 		),
 	)
@@ -322,10 +436,22 @@ func clockwiseToolHandler(ctx context.Context, request mcp.CallToolRequest) (*mc
 		return mcpError(name, err), nil
 	}
 
+	duration, err := request.RequireInt("duration")
+	if err != nil {
+		return mcpError(name, err), nil
+	}
+
+	mu.Lock()
+	defer mu.Unlock()
+
 	err = drone.Clockwise(speed)
 	if err != nil {
 		return mcpError(name, err), nil
 	}
+
+	time.AfterFunc(time.Duration(duration)*time.Millisecond, func() {
+		drone.Hover()
+	})
 
 	return mcpSuccess(name, fmt.Sprintf("minidrone rotating clockwise at speed %d", speed)), nil
 }
@@ -335,6 +461,10 @@ func addToolCounterClockwise() {
 		mcp.WithDescription("Causes the minidrone to rotate in a counter-clockwise direction"),
 		mcp.WithNumber("speed",
 			mcp.Description("speed from 0-100"),
+			mcp.Required(),
+		),
+		mcp.WithNumber("duration",
+			mcp.Description("for how long to move (should default to 500 milliseconds)"),
 			mcp.Required(),
 		),
 	)
@@ -353,10 +483,22 @@ func counterClockwiseToolHandler(ctx context.Context, request mcp.CallToolReques
 		return mcpError(name, err), nil
 	}
 
+	duration, err := request.RequireInt("duration")
+	if err != nil {
+		return mcpError(name, err), nil
+	}
+
+	mu.Lock()
+	defer mu.Unlock()
+
 	err = drone.CounterClockwise(speed)
 	if err != nil {
 		return mcpError(name, err), nil
 	}
+
+	time.AfterFunc(time.Duration(duration)*time.Millisecond, func() {
+		drone.Hover()
+	})
 
 	return mcpSuccess(name, fmt.Sprintf("minidrone rotating counter-clockwies at speed %d", speed)), nil
 }
@@ -374,6 +516,9 @@ func frontFlipToolHandler(ctx context.Context, request mcp.CallToolRequest) (*mc
 	if drone == nil {
 		return mcpError(name, errDroneNotAvailable), nil
 	}
+
+	mu.Lock()
+	defer mu.Unlock()
 
 	err := drone.FrontFlip()
 	if err != nil {
@@ -397,12 +542,37 @@ func backFlipToolHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp
 		return mcpError(name, errDroneNotAvailable), nil
 	}
 
+	mu.Lock()
+	defer mu.Unlock()
+
 	err := drone.BackFlip()
 	if err != nil {
 		return mcpError(name, err), nil
 	}
 
 	return mcpSuccess(name, "minidrone performing a back flip"), nil
+}
+
+func addToolIsFlying() {
+	tool := mcp.NewTool("is_flying",
+		mcp.WithDescription("Checks to see if the Minidrone is currently in flight"),
+	)
+
+	s.AddTool(tool, isFlyingToolHandler)
+}
+
+func isFlyingToolHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+	name := "is_flying"
+	if drone == nil {
+		return mcpError(name, errDroneNotAvailable), nil
+	}
+
+	response := `{"flying":"false"}`
+	if drone.Flying {
+		response = `{"flying":"true"}`
+	}
+
+	return mcpSuccess(name, response), nil
 }
 
 func addResourceFlying() {

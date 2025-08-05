@@ -2,6 +2,7 @@ module github.com/hybridgroup/tinygo-minidrone/cmd/mcp-minidrone
 
 go 1.24.4
 
+replace github.com/hybridgroup/tinygo-minidrone => ../..
 require (
 	github.com/hybridgroup/tinygo-minidrone v0.0.0-20250802085951-50ddffccd2af
 	github.com/mark3labs/mcp-go v0.36.0

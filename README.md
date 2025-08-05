@@ -32,4 +32,3 @@ See the examples folder. The "takeoff" examples should work on all platforms.
 ## MCP Server
 
 [Check out the MCP Server](./cmd/mcp-minidrone)
-

@@ -79,6 +79,7 @@ func init() {
 		}
 
 		if drone != nil {
+			println("exiting...")
 			drone.Halt()
 			device.Disconnect()
 		}
