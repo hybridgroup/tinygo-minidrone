@@ -27,7 +27,13 @@ Models that will require additional work for compatibility:
 
 - Parrot Swing
 
+## Examples
+
 See the examples folder. The "takeoff" examples should work on all platforms.
+
+## Tutorial
+
+[Check out the step by step tutorial](./tutorial/)
 
 ## MCP Server
 
