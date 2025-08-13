@@ -2,10 +2,10 @@
 
 This program creates an [MCP server](https://modelcontextprotocol.io/overview) that provides tools for controlling the Minidrone from any model that has tool calling support.
 
-## Building
+## Install
 
 ```shell
-go build -o mcp-minidrone .
+go install github.com/hybridgroup/tinygo-minidrone/cmd/mcp-minidrone@latest
 ```
 
 ## Running
@@ -15,9 +15,5 @@ mcp-minidrone [MAC address or Bluetooth ID]
 ```
 
 You can also use the `-port` flag to set a specific port for the MCP server.
-
-```shell
-
-```
 
 Once it is running, you can call it from whatever MCP host/client that you wish.
