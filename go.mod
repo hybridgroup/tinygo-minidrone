@@ -1,25 +1,32 @@
 module github.com/hybridgroup/tinygo-minidrone
 
-go 1.20
+go 1.22.6
+
+toolchain go1.24.4
 
 require (
-	tinygo.org/x/bluetooth v0.9.1-0.20240611080622-b1081a9db1dd
-	tinygo.org/x/drivers v0.26.1-0.20240117074700-3c5e17423a16
+	gobot.io/x/gobot/v2 v2.5.0
+	tinygo.org/x/bluetooth v0.12.0
+	tinygo.org/x/drivers v0.28.1-0.20241028090715-76a4276b5dea
 	tinygo.org/x/tinydraw v0.0.0-20200416172542-c30d6d84353c
 	tinygo.org/x/tinyfont v0.4.0
-	tinygo.org/x/tinyterm v0.3.1-0.20231207163921-6842651de7e1
+	tinygo.org/x/tinyterm v0.3.1-0.20241028084705-e36d93d72cca
 )
 
 require (
-	github.com/go-ole/go-ole v1.2.6 // indirect
+	github.com/0xcafed00d/joystick v1.0.1 // indirect
+	github.com/go-ole/go-ole v1.3.0 // indirect
 	github.com/godbus/dbus/v5 v5.1.0 // indirect
+	github.com/gofrs/uuid v4.4.0+incompatible // indirect
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510 // indirect
-	github.com/saltosystems/winrt-go v0.0.0-20240509164145-4f7860a3bd2b // indirect
+	github.com/hashicorp/errwrap v1.1.0 // indirect
+	github.com/hashicorp/go-multierror v1.1.1 // indirect
+	github.com/saltosystems/winrt-go v0.0.0-20241223121953-98e32661f6ff // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
-	github.com/soypat/cyw43439 v0.0.0-20240609122733-da9153086796 // indirect
-	github.com/soypat/seqs v0.0.0-20240527012110-1201bab640ef // indirect
+	github.com/soypat/cyw43439 v0.0.0-20250505012923-830110c8f4af // indirect
+	github.com/soypat/seqs v0.0.0-20250124201400-0d65bc7c1710 // indirect
 	github.com/tinygo-org/cbgo v0.0.4 // indirect
-	github.com/tinygo-org/pio v0.0.0-20231216154340-cd888eb58899 // indirect
-	golang.org/x/exp v0.0.0-20230728194245-b0cb94b80691 // indirect
-	golang.org/x/sys v0.11.0 // indirect
+	github.com/tinygo-org/pio v0.2.0 // indirect
+	golang.org/x/exp v0.0.0-20250210185358-939b2ce775ac // indirect
+	golang.org/x/sys v0.30.0 // indirect
 )
