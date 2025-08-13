@@ -9,7 +9,7 @@ You can use [TinyGo Bluetooth](https://tinygo.org/bluetooth) to control the dron
 ## What you need
 
     - Parrot Minidrone
-    - Personal computer with Go 1.22+ installed
+    - Personal computer with Go 1.24+ installed
     - Works on Linux, macOS, or Windows
 
 Do you have a Badger20400-W? You can also use it to control your drone using the Flightbadge firmware! Look in the tutorials directory in the repo for your specific badge.
@@ -34,19 +34,21 @@ Therefore, you must know the correct name and then MAC address or ID for that de
 
 The name of the drone should be listed on the side of it.
 
-To find out the unique MAC address or Bluetooth ID for a device, you can use the Bluetooth scanner located in the tools directory of this repo.
+To find out the unique MAC address or Bluetooth ID for a device, you can use the Bluetooth scanner in this repo.
 
-First, change so the current directory is the `tools` directory:
-
-```shell
-cd tools
-```
-
-Then, run the Bluetooth scanner command:
+First, install the Bluetooth scanner command:
 
 ```shell
-go run ./blescanner
+go install ./cmd/blescanner
 ```
+
+Then, run the command:
+
+```shell
+blescanner
+```
+
+It should show the names of the various Bluetooth devices around you, including the Minidrone you want to connect to.
 
 ## Code
 
